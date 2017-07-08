@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# This script was modified by Mdrights to fit to Slackware.
 
 udev_rules='/etc/udev/rules.d'
 output_rule="$udev_rules/20-macchiato.rules"
@@ -11,12 +12,12 @@ if [ "$#" -eq 0 ]; then
 fi
 
 scriptFile="$(readlink -f "$BASH_SOURCE")"
-scriptDir="$(dirname "$scriptFile")"
+scriptDir="/usr/local/macchiato"
 
 source "$scriptDir/functions.sh" || exit 1
 
-if [ -x /usr/share/macchiato/macchiato ]; then
-	macchiato_bin='/usr/share/macchiato/macchiato'
+if [ -x "$scriptDir/macchiato" ]; then
+	macchiato_bin="$scriptDir/macchiato"
 else
 	if ! which macchiato &> /dev/null; then
 		echo 'Cannot find macchiato executable in $PATH.'
@@ -26,7 +27,7 @@ else
 fi
 bash_bin=$(which bash)
 
-confDir="$1"
+confDir="/etc/macchiato.d"
 if [ ! -d "$confDir" ]; then
 	echo "Configuration directory '$confDir' not found."
 	exit 1

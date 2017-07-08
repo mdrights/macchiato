@@ -1,0 +1,70 @@
+#!/bin/bash
+
+# Slackware build script for macchiato which make your device (in which the network card(s)) anonymous to  
+# others on the network, by spoofing/randomizing MAC address(es).  
+
+# This build script is written by MDrights <mdrights@tutanota.de>,
+# while the core code was written by Etienne Perot <etienne at perot dot me>.
+
+# This script and Macchiato as whole are licensed under the BSD License (three clauses).
+
+set -eu
+
+# This script needs root privilege.
+
+if [ "$UID" != 0 ]; then echo "Please run me as root. Quit..."; exit 1; fi
+
+
+PRGNAM=macchiato
+VERSION=${VERSION:-20170604}
+BUILD=${BUILD:-1}
+TAG=${TAG:-_SBo}
+
+# Ignore the arch identification since we assume you are using 64bit OS :).
+ARCH=x86_64
+
+CWD=$(pwd)
+DOWNDIR="/usr/local"
+PKG="$DOWNDIR/macchiato"
+
+echo "Delete $PKG if it exists."
+rm -rf "$PKG"
+
+# Ignore the compilation configure options since it doesn't need to compile.
+# Ignore file/dir cleaning and making.
+
+# Download from git repo.
+cd $DOWNDIR
+git clone https://github.com/EtiennePerot/macchiato.git
+
+# Configure it
+CONFDIR="/etc/macchiato.d"
+mkdir -p $CONFDIR
+
+## Detect what NIC this device has.
+NIC=($(ls /sys/class/net/))
+echo "It has ${NIC[@]}."
+
+## Make conf files for every NIC except lo.
+for nic in ${NIC[@]};
+    do
+    if [ "$nic" != "lo" ];then
+        cp "$PKG/conf/sample.sh.example" "$CONFDIR/$nic.sh"
+    else
+	continue
+    fi
+done
+
+# Udev?
+## Firstly detect if udev/eudev exists.
+
+if which udevd &> /dev/null; then
+	echo "udev/eudev exists. Go ahead."
+	cp "$PKG/install-udev-rules.sh" "$CONFDIR/"
+else
+	echo "udev/eudev seems not to be installed. Nothing to do."
+fi
+
+echo "Installation finished."
+exit 0
+
