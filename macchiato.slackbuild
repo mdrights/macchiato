@@ -55,12 +55,17 @@ for nic in ${NIC[@]};
     fi
 done
 
+# Refine the executable to be usable.
+chmod u+x "$PKG/macchiato"
+
+ln -s "$PKG/macchiato" "$DOWNDIR/bin/macchiato"
+
 # Udev?
 ## Firstly detect if udev/eudev exists.
 
 if which udevd &> /dev/null; then
 	echo "udev/eudev exists. Go ahead."
-	cp "$PKG/install-udev-rules.sh" "$CONFDIR/"
+	cp "$CWD/install-udev-rules.sh" "$CONFDIR/"
 else
 	echo "udev/eudev seems not to be installed. Nothing to do."
 fi
